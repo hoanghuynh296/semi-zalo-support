@@ -72,9 +72,21 @@ object ZaloAPI {
 
     fun auth(activity: Activity, callback: vn.semicolon.zalosupport.OAuthCompleteListener) {
         ZaloSDK.Instance.authenticate(activity, LoginVia.APP, object : OAuthCompleteListener() {
-            override fun onGetOAuthComplete(oauthResponse: OauthResponse?) {
+            override fun onGetOAuthComplete(oauthResponse: com.zing.zalo.zalosdk.oauth.OauthResponse?) {
                 super.onGetOAuthComplete(oauthResponse)
-                callback.onGetOAuthComplete(oauthResponse)
+                callback.onGetOAuthComplete(
+                    OauthResponse(
+                        oauthResponse?.errorCode ?: 0,
+                        oauthResponse?.errorMessage,
+                        oauthResponse?.getuId() ?: 0,
+                        oauthResponse?.oauthCode,
+                        oauthResponse?.channel,
+                        oauthResponse?.facebookAccessToken,
+                        oauthResponse?.facebookExpireTime ?: 0,
+                        oauthResponse?.socialId,
+                        oauthResponse?.isRegister ?: false
+                    )
+                )
             }
 
             override fun onAuthenError(i: Int, str: String?) {
@@ -108,3 +120,15 @@ interface OAuthCompleteListener {
     fun onRequestAccountProtect(i: Int, str: String?)
     fun onProtectAccComplete(i: Int, str: String?, dialog: Dialog?)
 }
+
+data class OauthResponse(
+    var errorCode: Int = 0,
+    var errorMessage: String? = null,
+    var uid: Long = 0,
+    var oauthCode: String? = null,
+    var channel: LoginChannel? = null,
+    var facebookAccessToken: String? = null,
+    var facebookExpireTime: Long = 0,
+    var socialId: String? = null,
+    var isRegister: Boolean = false
+)
