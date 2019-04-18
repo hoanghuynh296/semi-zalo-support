@@ -1,12 +1,14 @@
 package vn.semicolon.zalosupport
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.app.Dialog
+import android.content.Context
+import android.content.DialogInterface
 import android.util.Log
-import com.zing.zalo.zalosdk.oauth.LoginVia
+import com.zing.zalo.zalosdk.core.helper.AppInfo
+import com.zing.zalo.zalosdk.oauth.*
 import com.zing.zalo.zalosdk.oauth.OAuthCompleteListener
-import com.zing.zalo.zalosdk.oauth.OauthResponse
-import com.zing.zalo.zalosdk.oauth.ZaloSDK
 import io.reactivex.Flowable
 import io.reactivex.schedulers.Schedulers
 import retrofit2.http.GET
@@ -68,7 +70,41 @@ object ZaloAPI {
             }
     }
 
-    fun auth(activity: Activity, callback: OAuthCompleteListener) {
-        ZaloSDK.Instance.authenticate(activity, LoginVia.APP, callback)
+    fun auth(activity: Activity, callback: vn.semicolon.zalosupport.OAuthCompleteListener) {
+        ZaloSDK.Instance.authenticate(activity, LoginVia.APP, object : OAuthCompleteListener() {
+            override fun onGetOAuthComplete(oauthResponse: OauthResponse?) {
+                super.onGetOAuthComplete(oauthResponse)
+                callback.onGetOAuthComplete(oauthResponse)
+            }
+
+            override fun onAuthenError(i: Int, str: String?) {
+                super.onAuthenError(i, str)
+                Log.d("Semi-Zalo", str)
+                callback.onAuthenError(i, str)
+            }
+
+            override fun onGetPermissionData(i: Int) {
+                super.onGetPermissionData(i)
+                callback.onGetPermissionData(i)
+            }
+
+            override fun onRequestAccountProtect(i: Int, str: String?) {
+                super.onRequestAccountProtect(i, str)
+                callback.onRequestAccountProtect(i, str)
+            }
+
+            override fun onProtectAccComplete(i: Int, str: String?, dialog: Dialog?) {
+                super.onProtectAccComplete(i, str, dialog)
+                callback.onProtectAccComplete(i, str, dialog)
+            }
+        })
     }
+}
+
+interface OAuthCompleteListener {
+    fun onGetOAuthComplete(oauthResponse: OauthResponse?)
+    fun onAuthenError(i: Int, str: String?)
+    fun onGetPermissionData(i: Int)
+    fun onRequestAccountProtect(i: Int, str: String?)
+    fun onProtectAccComplete(i: Int, str: String?, dialog: Dialog?)
 }
