@@ -1,5 +1,12 @@
 package vn.semicolon.zalosupport
 
+import android.app.Activity
+import android.app.Dialog
+import android.util.Log
+import com.zing.zalo.zalosdk.oauth.LoginVia
+import com.zing.zalo.zalosdk.oauth.OAuthCompleteListener
+import com.zing.zalo.zalosdk.oauth.OauthResponse
+import com.zing.zalo.zalosdk.oauth.ZaloSDK
 import io.reactivex.Flowable
 import io.reactivex.schedulers.Schedulers
 import retrofit2.http.GET
@@ -59,5 +66,9 @@ object ZaloAPI {
             }.flatMap {
                 ZaloAPI.getInvitableFriends(it)
             }
+    }
+
+    fun auth(activity: Activity, callback: OAuthCompleteListener) {
+        ZaloSDK.Instance.authenticate(activity, LoginVia.APP, callback)
     }
 }
