@@ -1,12 +1,9 @@
 package vn.semicolon.zalosupport
 
 import android.app.Activity
-import android.app.AlertDialog
+import android.app.Application
 import android.app.Dialog
-import android.content.Context
-import android.content.DialogInterface
 import android.util.Log
-import com.zing.zalo.zalosdk.core.helper.AppInfo
 import com.zing.zalo.zalosdk.oauth.*
 import com.zing.zalo.zalosdk.oauth.OAuthCompleteListener
 import io.reactivex.Flowable
@@ -42,7 +39,7 @@ interface IZaloOauthAPI {
     ): Flowable<ZaloUserModel.Token>
 }
 
-object ZaloAPI {
+object SZaloSDK {
     fun getProfile(accessToken: String): Flowable<ZaloUserModel> {
         return ZaloAPIService.graph(IZaloGraphAPI::class.java).getProfile(accessToken)
     }
@@ -66,7 +63,7 @@ object ZaloAPI {
             .map {
                 it.access_token
             }.flatMap {
-                ZaloAPI.getInvitableFriends(it)
+                SZaloSDK.getInvitableFriends(it)
             }
     }
 
@@ -110,6 +107,10 @@ object ZaloAPI {
                 callback.onProtectAccComplete(i, str, dialog)
             }
         })
+    }
+
+    fun wrap(application: Application) {
+        ZaloSDKApplication.wrap(application)
     }
 }
 
