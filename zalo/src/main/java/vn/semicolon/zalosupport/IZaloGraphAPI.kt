@@ -44,6 +44,17 @@ object SZaloSDK {
         return ZaloAPIService.graph(IZaloGraphAPI::class.java).getProfile(accessToken)
     }
 
+    fun getProfile(oauthCode: String, appId: String, appSecret: String): Flowable<ZaloUserModel> {
+        return getAccessToken(oauthCode, appId, appSecret)
+            .subscribeOn(Schedulers.io())
+            .observeOn(Schedulers.io())
+            .map {
+                it.access_token
+            }.flatMap {
+                getProfile(it)
+            }
+    }
+
     fun getAccessToken(oauthCode: String, appId: String, appSecret: String): Flowable<ZaloUserModel.Token> {
         return ZaloAPIService.oauth(IZaloOauthAPI::class.java).getAccessToken(oauthCode, appId, appSecret)
     }
